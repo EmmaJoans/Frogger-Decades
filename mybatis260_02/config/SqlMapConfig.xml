@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<!-- 通过外部属性文件加载 -->
+	<properties resource="jdbc.properties">
+		<!-- 如果外部属性文件中Key和内部自定义的Key一致的话那么外部的会覆盖内部的Key -->
+		<property name="jdbc.username" value="root123"/>
+	</properties>
+
+	<!-- 类型别名 -->
+	<typeAliases>
+		<!-- 单个起别名
+			问题：如果有100个类呢？
+		 -->
+<!-- 		<typeAlias type="cn.itcast.mybatis.pojo.User" alias="users"/> -->
+
+		<!-- 批量起别名：扫描包形式
+			扫描此包及其子包下的所有的POJO类，并且默认为POJO类的名字
+			不区分大小写
+		 -->
+		 <package name="cn.itcast.mybatis.pojo"/>
+	</typeAliases>
+	
+	<!-- 数据源 -->
+	<!-- 和spring整合后 environments配置将废除 
+		为什么？
+		管理事务？Spring
+		SPring配置数据源
+	-->
+	<environments default="development">
+		<environment id="development">
+			<!-- 使用jdbc事务管理 -->
+			<transactionManager type="JDBC" />
+			<!-- 数据库连接池 -->
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<property name="url"
+					value="jdbc:mysql://localhost:3306/mybatis260?characterEncoding=utf-8" />
+				<property name="username" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<!-- 引入映射文件 -->
+	<mappers>
+		<!-- 1\单个引入映射文件 -->
+		<!-- <mapper resource="mapper/user.xml"/>
+		<mapper resource="mapper/UserMapper.xml"/> -->
+		
+		<!-- 2\单个引入映射文件的 
+			class:扫描的Mapper接口类
+			条件：Mapper接口类和Mapper映射文件必须是同包同名
+		-->
+<!-- 		<mapper class="cn.itcast.mybatis.mapper.UserMapper"/> -->
+		
+		<!-- 单个引入映射文件的都有问题：如果100个呢？ -->
+		<!-- 批量引入映射文件：扫描包形式的
+			name:扫描的包名，这个包名是Mapper接口类的包名
+			条件：Mapper接口类必须和Mapper映射文件同包同名
+		 -->
+		 <package name="cn.itcast.mybatis.mapper"/>
+	</mappers>
+	
+</configuration>

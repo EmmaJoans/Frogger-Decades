@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：命名空间；作用：1、隔离SQL语句用的； 2、指定Mapper接口的地址-->
+
+<!-- 
+	Mapper动态代理的规则：
+	1、Mapper接口类的全命名必须和Mapper映射文件中的namespace一致
+	2|Mapper接口类中的方法名和Mapper映射文件中的StatementID（SQL ID）一致
+	3、Mapper接口类中的方法名中的参数类型必须和Mapper映射文件中的paremeterType类型一致
+	4|Mapper接口类中的方法名的返回值类型必须和Mapper映射文件中的ResultType一致
+
+
+ -->
+
+
+
+<mapper namespace="cn.itcast.mybatis.mapper.UserMapper">
+	
+	<!-- 提取冗余的SQL语句 -->
+	<sql id="selectUser">
+		select * from user  
+	</sql>
+
+	<!-- -注：
+		select标签说明查询标签
+		id: StatementID或者是SQL语句ID，名字是唯一的
+		#{}：占位符   里面必须有值：
+			1、当输入参数类型为简单的类型时那么这里面任意值
+			2、当输入参数类型是POJO对象时，那么占位符里面是POJO对象中的属性名，会自动根据POJO属性名获取get方法
+			'张'
+			有预编译过程，防止SQL注入，比如：张——>'张'
+			
+		parameterType:输入参数类型
+		resultType:返回值类型，如果返回类型是POJO对象那么就是POJO对象的权限命名
+	 -->
+	<select id="findUserById" parameterType="Integer" resultType="cn.itcast.mybatis.pojo.User">
+		<include refid="selectUser"/> where id = #{fghjfguhijtyuhi}
+	</select>
+
+
+	<!-- 根据用户名模糊查询用户列表 
+		resultType:返回值类型；如果返回值类型是list集合类型那么返回的是集合中每一个元素的类型
+	-->
+	<!-- <select id="findUserByUsername" parameterType="String" resultType="cn.itcast.mybatis.pojo.User">
+		select * from user where username LIKE #{username}
+	</select> -->
+	
+	<!-- ${}： StringSQL拼接符 ；
+		1、当输入参数类型是简单类型时那么拼接符里必须是value
+		2、当输入参数类型是POJO对象时那么拼接符中必须是POJO对象中的属性名
+		没有预编译过程，不能防止SQL注入，比如：张——>张
+	-->
+	<!-- <select id="findUserByUsername" parameterType="String" resultType="cn.itcast.mybatis.pojo.User">
+		select * from user where username LIKE '%${value}%'
+	</select> -->
+	<!-- 第三种方式 -->
+	<!-- <select id="findUserByUsername" parameterType="String" resultType="cn.itcast.mybatis.pojo.User">
+		select * from user where username LIKE "%"#{username}"%"
+	</select> -->
+	<select id="findUserByUsername" parameterType="cn.itcast.mybatis.pojo.QueryVo" resultType="cn.itcast.mybatis.pojo.User">
+		
+		<include refid="selectUser"/>
+		
+		<!-- 作用：1、添加WHERE关键字；2、校验SQL语句去掉后面的第一个AND -->
+		<where>
+		<!-- if : 判断参数有效的
+			test: 写判断语句的
+		 -->
+		<if test="user.username != null and user.username !=''">
+			and username LIKE "%"#{user.username}"%"
+		</if> 
+		<if test="user.sex != null and user.sex != ''">
+			and sex = #{user.sex}
+		</if>
+		</where>
+	</select>
+	
+	<!-- 添加用户 -->
+	<insert id="addUser" parameterType="cn.itcast.mybatis.pojo.User">
+		<!-- 添加用户查询主键返回标签 
+			keyProperty: 返回的主键对应的POJO中的属性名
+			resultType: 对应的POJO主键的类型
+			order：查询的顺序，在插入之前执行还是在插入之后执行
+			
+			MySQL：
+				自增的情况：order = AFTER
+				UUID : order = BEFORE
+			Oracle: order = BEFORE
+			
+		-->
+		<selectKey keyProperty="id" resultType="Integer" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	
+		insert into user
+		(username,sex,birthday,address)
+		value
+		(#{username},#{sex},#{birthday},#{address})
+	</insert>
+	
+	<select id="findUserCount" resultType="int">
+		select count(*) from user
+	</select>
+	
+	
+	
+	<!-- 根据ID查询多条用户信息 
+		(1,10,25,30)
+	-->
+	<select id="findUserByIds" parameterType="cn.itcast.mybatis.pojo.QueryVo" resultType="cn.itcast.mybatis.pojo.User">
+		select * from User where 
+		<!-- foreach:遍历输入参数
+			collection: 输入参数名
+				1、当输入参数类型是数组类型时，那么 collection = array
+				2、当输入参数类型是集合类型时，那么 collection = list
+				3、当输入参数类型是POJO对象时，那么 collection= POJO对象中属性名
+			item: 遍历每个元素名   这个名随便起但是一定要和后面的这个#{}里面的值要一致
+			open: 遍历时前缀
+			close:遍历的后缀
+			separator: 遍历的分隔符   当最后一位时不加分隔符
+		 -->
+		<foreach collection="ids" item="id" open=" id in  (" close=")" separator=",">
+			#{id} 
+		</foreach>
+		
+	</select>
+	
+	<resultMap type="cn.itcast.mybatis.pojo.User" id="user_order_map">
+		<id column="id" property="id"/>
+		<result column="username" property="username"/>
+		<result column="sex" property="sex"/>
+		<result column="address" property="address"/>
+		<result column="birthday" property="birthday"/>
+		<!-- 一对多映射 -->
+		<collection property="orders" ofType="cn.itcast.mybatis.pojo.Order">
+			<id column="oid" property="id"/>
+			<result column="number" property="number"/>
+			<result column="createtime" property="createtime"/>
+		</collection>
+	</resultMap>
+	
+	<select id="findUserOrderList" resultMap="user_order_map">
+		SELECT
+			u.id,
+			u.username,
+			u.address,
+			u.sex,
+			u.birthday,
+			o.id AS oid,
+			o.number,
+			o.createtime
+		FROM
+			`user` u
+		LEFT JOIN orders o ON o.user_id = u.id
+	</select>
+	
+	
+	
+</mapper>

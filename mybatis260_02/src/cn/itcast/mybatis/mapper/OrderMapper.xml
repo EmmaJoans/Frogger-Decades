@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.itcast.mybatis.mapper.OrderMapper">
+
+	<!-- resultType： 自动映射：查询的数据库表字段名和POJO对象属性名一致的话那么就能自动映射，如果不一致就映射不到
+		
+	 -->
+	<!-- <select id="findOrderAll" resultType="cn.itcast.mybatis.pojo.Order">
+		select id,user_id as userId,number,createtime,note from orders
+	</select> -->
+	<!-- resultMap:手动映射；如果查询的数据库表字段名和POJO对象属性名不一致的情况下可以手动设置 -->
+	<!-- type:输出参数类型；
+		id： ResultMap的标识
+		
+		当单个表查询时：Resultmap这种形式，也可以有自动映射方式；
+		只手动设置字段不一致的就可以了
+		
+	 -->
+	<resultMap type="cn.itcast.mybatis.pojo.Order" id="orderMap">
+		<!-- id : 主键映射，这个必须字段映射
+			column： 对应着数据库表字段名
+			property: 对应着POJO对象中属性名
+		 -->
+		<id column="id" property="id"/>
+		<!-- 映射普通字段 -->
+		<result column="user_id" property="userId"/>
+	</resultMap>
+	
+	<select id="findOrderAll" resultMap="orderMap">
+		select id,user_id,number,createtime,note from orders
+	</select>
+	
+	
+	<!-- <select id="findOrderUserList" resultType="cn.itcast.mybatis.pojo.OrderUser">
+		SELECT
+			o.id,
+			o.user_id as userId,
+			o.number,
+			o.createtime,
+			o.note,
+			u.username,
+			u.address
+		FROM
+			orders o
+		LEFT JOIN `user` u ON o.user_id = u.id
+	</select> -->
+	
+	<resultMap type="cn.itcast.mybatis.pojo.Order" id="order_user_map">
+		<id column="id" property="id"/>
+		<result column="user_id" property="userId"/>
+		<!-- <result column="number" property="number"/>
+		<result column="createtime" property="createtime"/>
+		<result column="note" property="note"/> -->
+		<!-- 一对一关联映射 
+			property:对应着POJO对象中的那个属性名
+		-->
+		<association property="user" javaType="cn.itcast.mybatis.pojo.User">
+			<id column="user_id" property="id"/>
+			<!-- 普通字段映射 -->
+			<!-- <result column="username" property="username"/>
+			<result column="address" property="address"/> -->
+		</association>
+	</resultMap>
+	
+	<select id="findOrderList" resultMap="order_user_map">
+		SELECT
+			o.id,
+			o.user_id,
+			o.number,
+			o.createtime,
+			o.note,
+			u.username,
+			u.address
+		FROM
+			orders o
+		LEFT JOIN `user` u ON o.user_id = u.id
+	</select>
+	
+</mapper>
