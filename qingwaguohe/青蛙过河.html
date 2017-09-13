@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			#all{
+				width: auto;
+				margin-top: 200px;
+				margin-left: 200px;
+				margin-right: auto;
+				text-align: center;	
+			}
+			
+			#big{
+				width: 100%;
+			}
+			
+			.d{
+				float: left;
+			}
+			
+			#btn{
+				clear: both;
+				margin-left: -108px;
+			}
+		</style>
+		<script src="js/jquery-1.11.0.js"></script>
+		<script>
+			$(function(){
+				var picLeft = "http://127.0.0.1:8020/qingwaguohe/img/2.jpg";
+				var picBottom = "http://127.0.0.1:8020/qingwaguohe/img/3.jpg";
+				var picRight = "http://127.0.0.1:8020/qingwaguohe/img/1.jpg";	
+			
+				
+				$("img").click(function(){	
+//					alert($(this).prop("id"));
+					
+					//坑的id
+					var i = $(this).prop("id");
+					
+					//当前图片
+					var picX =  $(this).prop("src");
+//					alert(picX == picLeft);
+//					alert(picX == picRight);
+
+					//图片向左
+					if( picX == picLeft){
+						
+						var intNext = parseInt(i) + 1;
+						var intNext2 = parseInt(i) + 2;
+									
+						var pic1 = $("#" + intNext).prop("src");
+						var pic2 = $("#" + intNext2).prop("src");
+//						alert(pic2)
+						if(pic1 == picBottom){
+							$(this).prop("src",picBottom);
+							$("#" + intNext).prop("src",picLeft);
+						}
+//						alert(pic2 == picBottom);						
+						if(pic2 == picBottom){
+							$(this).prop("src",picBottom);
+							$("#" + intNext2).prop("src",picLeft);
+						}
+					}
+					
+					//图片向右
+					if( picX == picRight){
+						
+						var intPre = parseInt(i) - 1;
+						var intPre2 = parseInt(i) - 2;
+									
+						var pic1 = $("#" + intPre).prop("src");
+						var pic2 = $("#" + intPre2).prop("src");
+//						alert(pic2)
+						if(pic1 == picBottom){
+							$(this).prop("src",picBottom);
+							$("#" + intPre).prop("src",picRight);
+						}
+//						alert(pic2 == picBottom);						
+						if(pic2 == picBottom){
+							$(this).prop("src",picBottom);
+							$("#" + intPre2).prop("src",picRight);
+						}
+					}
+					
+					//成功
+					var p1 = $("#0").prop("src");
+					var p2 = $("#1").prop("src");
+					var p3 = $("#2").prop("src");
+					var p4 = $("#3").prop("src");
+					var b = (p1 == picRight) && (p2 == picRight) && (p3 == picRight) && (p4 == picBottom); 
+					if( b ){
+						alert("聪明宝宝！");
+					}
+				})
+				
+				//成功
+				/*function success(){
+					$("img").each(function(i,e){
+						if(i <= 2 && e.prop("src") != picRight){
+							return false;
+						}
+						return true;
+					});
+				}
+				if(success()){
+					alert("聪明宝宝！");
+				}*/
+				
+				
+				
+			})
+			
+			function reStart(){
+				window.location.reload();
+			}
+		</script>
+	</head>
+	<body>
+		
+		<div id="all">
+			<div id="big">
+			<div class="d"><img id="0" src="img/2.jpg"/></div>
+			<div class="d"><img id="1" src="img/2.jpg"/></div>
+			<div class="d"><img id="2" src="img/2.jpg"/></div>
+			<div class="d"><img id="3" src="img/3.jpg"/></div>
+			<div class="d"><img id="4" src="img/1.jpg"/></div>
+			<div class="d"><img id="5" src="img/1.jpg"/></div>
+			<div class="d"><img id="6" src="img/1.jpg"/></div>
+			</div>
+			<div id="btn">
+			<input type="button" value="重新开始" onclick="reStart()"/>
+			</div>
+		</div>
+	</body>
+</html>
